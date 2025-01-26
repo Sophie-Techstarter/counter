@@ -69,7 +69,7 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          container-name: counterApp
+          container-name: counter
           image: ${{ secrets.DOCKER_USERNAME }}/counter:${{ github.sha }}
 
       - name: Deploy Amazon ECS task definition

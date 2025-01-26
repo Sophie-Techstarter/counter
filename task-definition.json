@@ -36,7 +36,7 @@
         }
     ],
     "family": "ECS_task_definition",
-    "executionRoleArn": "arn:aws:iam::593793028448:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::aws:policy/aws-service-role/AmazonECSServiceRolePolicy",
     "networkMode": "awsvpc",
    
     "volumes": [],

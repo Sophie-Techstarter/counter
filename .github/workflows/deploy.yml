@@ -47,6 +47,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # AWS Access Key aus GitHub Secrets
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # AWS Secret Key aus GitHub Secrets
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} 
           aws-region:  ${{ secrets.AWS_REGION }} 
 
       - name: Update ECS service

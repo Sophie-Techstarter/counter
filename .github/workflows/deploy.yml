@@ -83,4 +83,4 @@ jobs:
           aws ecs update-service \
             --cluster DevCluster \
             --service counterApp \
-            --force-new-deployment
+            --force-new-deployment 

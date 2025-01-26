@@ -57,3 +57,5 @@ jobs:
             --service counterApp \
             --force-new-deployment \
             --image ${DOCKER_USERNAME}/mywebapp:${GITHUB_SHA}
+
+            

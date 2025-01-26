@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
+    
 
 env:                 # set this to your Amazon ECS cluster name
   ECS_TASK_DEFINITION: ./task-definition.json

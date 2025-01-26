@@ -51,11 +51,12 @@ jobs:
 
       - name: Update ECS service
         run: |
-          # Update die ECS Service mit dem neuen Docker-Image
-          aws ecs update-service \
-            --cluster DevCluster \
-            --service counterApp \
-            --force-new-deployment \
-            --image ${DOCKER_USERNAME}/mywebapp:${GITHUB_SHA}
+            # Update die ECS Service mit dem neuen Docker-Image
+            aws ecs update-service \
+              --cluster DevCluster \
+              --service counterApp \
+              --force-new-deployment \
+              --image "${{ secrets.DOCKER_USERNAME }}/mywebapp:${{ github.sha }}"
+  
 
             

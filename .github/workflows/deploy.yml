@@ -9,7 +9,7 @@ on:
       - main
 
 env:                 # set this to your Amazon ECS cluster name
-  ECS_TASK_DEFINITION: "task-definition.json"
+  ECS_TASK_DEFINITION: ./task-definition.json
 
 jobs:
   build_test_push:

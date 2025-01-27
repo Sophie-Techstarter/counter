@@ -53,7 +53,7 @@ jobs:
 
       - name: Ansible Playbook ausführen
         working-directory: ./ansible
-        run: ansible-playbook -i inventory.ini meinPlaybook.yml
+        run: ansible-playbook -i inventory.ini mein-playbook.yml
 
   terraform_destroy:
     name: "Terraform_destroy"

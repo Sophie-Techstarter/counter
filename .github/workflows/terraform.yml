@@ -1,98 +1,36 @@
-name: Infrastructure
+name: Deployment Worfklow
 
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
-env:
-  TF_WORKING_DIR: ./terraform  # Verzeichnis mit Terraform-Konfigurationsdateien
+on: [push, workflow_dispatch]
 
 jobs:
-
-  provision_infrastructure:
-    runs-on: ubuntu-latest
+  apply:
+    name: Terraform apply
+    runs-on: ubuntu-latest #runner
+    if: github.event_name == 'push'
 
     steps:
+      
 
-      # Set AWS credentials for Terraform (using the official AWS Action)
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      # Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Set up Terraform
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          terraform_version: 1.5.6
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-region: eu-central-1
+    
+    #   - name: Change Directory
+    #     run: cd terraform 
 
-      # Terraform fmt (Formatierung überprüfen)
-      - name: Terraform fmt
-        id: fmt
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform fmt -check
-        continue-on-error: true  # Fehler hier sind nicht kritisch
-
-      # Terraform init (Initialisierung)
       - name: Terraform Init
-        id: init
-        working-directory: ${{ env.TF_WORKING_DIR }}
+        working-directory: ./terraform
         run: terraform init
 
-      # Terraform validate (Validierung der Konfiguration)
-      - name: Terraform Validate
-        id: validate
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform validate -no-color
-
-      # Terraform plan (Plan erstellen)
-      - name: Terraform Plan
-        id: plan
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform plan -no-color
-
-      # Apply Terraform Plan
       - name: Terraform Apply
-        id: apply
-        working-directory: ${{ env.TF_WORKING_DIR }}
+        working-directory: ./terraform
         run: terraform apply -auto-approve
-
-      # Kommentar für Pull Requests erstellen (nur für Pull Requests)
-      - name: Post Plan Comment
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = `
-            #### Terraform Format and Style 🖌: \`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️: \`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖: \`${{ steps.validate.outcome }}\`
-
-            <details><summary>Terraform Plan 📖</summary>
-
-            \`\`\`
-            ${process.env.PLAN}
-            \`\`\`
-
-            </details>
-
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })

@@ -54,7 +54,7 @@ jobs:
 
       - name: Ansible Playbook ausführen
         working-directory: ./ansible
-        run: ansible-playbook -i inventory.ini mein-playbook.yml
+        run: ansible-playbook -i inventory.ini mein-playbook.yml --ssh-common-args='-o StrictHostKeyChecking=no'
 
   terraform_destroy:
     name: "Terraform_destroy"

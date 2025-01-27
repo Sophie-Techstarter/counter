@@ -49,27 +49,6 @@ jobs:
             echo "Terraform outputs are empty or invalid."
           fi
 
-      - name: Setup SSH
-        shell: bash
-        run: |
-          # Start ssh-agent und setze die Umgebung
-          eval $(ssh-agent -s)
-
-          # Erstelle das .ssh Verzeichnis
-          mkdir -p /home/runner/.ssh/
-
-          # Speichere den SSH-Schlüssel aus GitHub Secrets in die Datei
-          echo "${{ secrets.AWS_SSH_KEY }}" > /home/runner/.ssh/windows-pair.pem
-
-          # Setze die richtigen Berechtigungen für den SSH-Schlüssel
-          chmod 600 /home/runner/.ssh/windows-pair.pem
-
-          # Füge den SSH-Schlüssel zum Agenten hinzu
-          ssh-add /home/runner/.ssh/windows-pair.pem
-
-          # Verhindere die Host Key Verifikation
-          echo -e "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile=/dev/null" > /home/runner/.ssh/config
-
       - name: Ansible Playbook ausführen
         working-directory: ./ansible
         run: ansible-playbook -i inventory.ini mein-playbook.yml --ssh-common-args='-o StrictHostKeyChecking=no' -v

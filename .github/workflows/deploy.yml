@@ -57,7 +57,7 @@ jobs:
 
   terraform_destroy:
     name: "Terraform_destroy"
-    if: ${{ github.event.inputs.action == 'Terraform_destroy' }}
+    if: ${{ github.event.inputs.action == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -77,7 +77,7 @@ jobs:
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: eu-central-1
             aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-            
+
       - name: Terraform Destroy
         id: destroy
         working-directory: ${{ github.event.inputs.resource }}

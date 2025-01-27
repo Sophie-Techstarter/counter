@@ -1,16 +1,18 @@
-name: Deployment Worfklow
+name: Deployment Workflow
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches:
+      - main  # oder der entsprechende Branch, auf dem der Workflow ausgeführt werden soll
+  workflow_dispatch:  # Ermöglicht das manuelle Auslösen des Workflows
 
 jobs:
   apply:
-    name: Terraform apply
-    runs-on: ubuntu-latest #runner
-    if: github.event_name == 'push'
+    name: Terraform Apply
+    runs-on: ubuntu-latest  # Runner für Terraform Apply
+    if: github.event_name == 'push'  # Nur beim Push ausführen
 
     steps:
-    
-
       - name: Checkout repo
         uses: actions/checkout@v3
 
@@ -20,11 +22,10 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
-          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
-          aws-session-token: ${{secrets.AWS_SESSION_TOKEN}}
-
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
       - name: Terraform Init
         working-directory: ./terraform
@@ -55,10 +56,10 @@ jobs:
         run: ansible-playbook -i inventory.ini meinPlaybook.yml
 
   destroy:
-    name: Terraform destroy
-    runs-on: ubuntu-latest #runner
-    if: github.event_name == 'workflow_dispatch'
-    
+    name: Terraform Destroy
+    runs-on: ubuntu-latest  # Runner für Terraform Destroy
+    if: github.event_name == 'workflow_dispatch'  # Nur manuell ausführen
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -69,15 +70,19 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
-          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
-          aws-session-token: ${{secrets.AWS_SESSION_TOKEN}}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
       - name: Terraform Init
         working-directory: ./terraform
         run: terraform init
 
+      - name: Terraform Plan (before destroy)
+        working-directory: ./terraform
+        run: terraform plan -destroy
+
       - name: Terraform Destroy
         working-directory: ./terraform
-        run: terraform destroy -auto-approve 
+        run: terraform destroy -auto-approve

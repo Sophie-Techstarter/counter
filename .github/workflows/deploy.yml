@@ -55,34 +55,35 @@ jobs:
         working-directory: ./ansible
         run: ansible-playbook -i inventory.ini meinPlaybook.yml
 
-  destroy:
-    name: Terraform Destroy
-    runs-on: ubuntu-latest  # Runner für Terraform Destroy
-    if: github.event_name == 'workflow_dispatch'  # Nur manuell ausführen
-
+  terraform_destroy:
+    name: "Terraform_destroy"
+    if: ${{ github.event.inputs.action == 'Terraform_destroy' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ github.event.inputs.resource }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
 
       - name: Terraform Init
-        working-directory: ./terraform
+        id: init
         run: terraform init
-
-      - name: Terraform Plan (before destroy)
-        working-directory: ./terraform
-        run: terraform plan -destroy 
-
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: eu-central-1
+            aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+            
       - name: Terraform Destroy
-        working-directory: ./terraform
-        run: terraform destroy -auto-approve
+        id: destroy
+        working-directory: ${{ github.event.inputs.resource }}
+        run: terraform destroy -auto-approve -var-file=variables.tfvars
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: eu-central-1
+            aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}

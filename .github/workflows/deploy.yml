@@ -78,6 +78,10 @@ jobs:
       - name: Terraform Init
         working-directory: ./terraform
         run: terraform init
+
+      - name: Terraform Plan (Destroy)
+        working-directory: ./terraform
+        run: terraform plan -destroy
   
       - name: Terraform Destroy
         working-directory: ./terraform

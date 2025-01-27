@@ -48,8 +48,9 @@ jobs:
       - name: Copy SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/terraformKey.pem
-          chmod 600 ~/.ssh/terraformKey.pem
+          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/windows-pair.pem
+          cat ~/.ssh/windows-pair.pem
+          chmod 600 ~/.ssh/windows-pair.pem
 
       - name: Ansible Playbook ausführen
         working-directory: ./ansible
@@ -74,7 +75,6 @@ jobs:
           aws-region: eu-central-1
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
-            
       - name: Terraform Init
         working-directory: ./terraform
         run: terraform init

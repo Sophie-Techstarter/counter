@@ -46,11 +46,11 @@ jobs:
         with:
           context: .  # Dockerfile befindet sich im Root-Verzeichnis
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/counter:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/counter:latest
 
   provision_infrastructure:
     runs-on: ubuntu-latest
-    needs: dockerize  # Führt Terraform erst aus, nachdem der vorherige Job erfolgreich war
+    needs: dockerize  # Führt Terraform erst aus, nachdem der Docker-Job erfolgreich war
 
     steps:
       # Checkout the repository
@@ -59,30 +59,62 @@ jobs:
 
       # Set up Terraform
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.6
 
-      # Initialize Terraform
-      - name: Initialize Terraform
-        working-directory: ${{ env.TF_WORKING_DIR }}  # Hier wird das Verzeichnis ./terraform verwendet
+      # Terraform fmt (Formatierung überprüfen)
+      - name: Terraform fmt
+        id: fmt
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform fmt -check
+        continue-on-error: true  # Fehler hier sind nicht kritisch
+
+      # Terraform init (Initialisierung)
+      - name: Terraform Init
+        id: init
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform init
 
-      # Validate Terraform configuration
-      - name: Validate Terraform
+      # Terraform validate (Validierung der Konfiguration)
+      - name: Terraform Validate
+        id: validate
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform validate
+        run: terraform validate -no-color
 
-      # Plan Terraform infrastructure changes
+      # Terraform plan (Plan erstellen)
       - name: Terraform Plan
+        id: plan
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform plan
+        run: terraform plan -no-color
 
-      # Apply Terraform changes to provision AWS infrastructure
-      - name: Terraform Apply
-        working-directory: ${{ env.TF_WORKING_DIR }}
+      # Kommentar für Pull Requests erstellen (nur für Pull Requests)
+      - name: Post Plan Comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-        run: terraform apply -auto-approve
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `
+            #### Terraform Format and Style 🖌: \`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️: \`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖: \`${{ steps.validate.outcome }}\`
+
+            <details><summary>Terraform Plan 📖</summary>
+
+            \`\`\`
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })

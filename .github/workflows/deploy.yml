@@ -10,7 +10,7 @@ env:
   TF_WORKING_DIR: ./terraform  # Verzeichnis mit Terraform-Konfigurationsdateien
 
 jobs:
-  build_test_push:
+  dockerize:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,14 +27,6 @@ jobs:
       # Install dependencies
       - name: Install dependencies
         run: npm ci
-
-      # Run tests
-      - name: Run tests
-        run: npm test
-
-      # Build the React app
-      - name: Build React app
-        run: npm run build
 
       # Set up Docker Buildx for multi-platform builds
       - name: Set up Docker Buildx

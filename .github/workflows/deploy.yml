@@ -78,6 +78,11 @@ jobs:
       - name: Terraform Init
         working-directory: ./terraform
         run: terraform init
+    
+      - name: Terraform Refresh
+        working-directory: ./terraform
+        run: terraform refresh
+
 
       - name: Terraform Plan (Destroy)
         working-directory: ./terraform

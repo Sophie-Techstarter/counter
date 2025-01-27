@@ -49,6 +49,13 @@ jobs:
             echo "Terraform outputs are empty or invalid."
           fi
 
+      - name: SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+
       - name: Ansible Playbook ausführen
         working-directory: ./ansible
         run: ansible-playbook -i inventory.ini mein-playbook.yml --ssh-common-args='-o StrictHostKeyChecking=no' -v

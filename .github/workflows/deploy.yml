@@ -43,7 +43,12 @@ jobs:
         run: |
           echo "[webserver]" > ../ansible/inventory.ini
           terraform output -json >> meineOutputs.json
+          if [ -s meineOutputs.json ]; then
           jq -r ".public_ips.value[]" meineOutputs.json >> ../ansible/inventory.ini
+          else
+            echo "Terraform outputs are empty or invalid."
+          fi
+
 
       - name: Copy SSH Key
         run: |

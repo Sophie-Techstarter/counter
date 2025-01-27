@@ -43,7 +43,7 @@ jobs:
         run: |
           echo "[webserver]" > ../ansible/inventory.ini
           terraform output -json >> meineOutputs.json
-          jq -r ".instance_public_ips.value[]" meineOutputs.json >> ../ansible/inventory.ini
+          jq -r ".public_ips.value[]" meineOutputs.json >> ../ansible/inventory.ini
 
       - name: Copy SSH Key
         run: |

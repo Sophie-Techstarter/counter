@@ -4,11 +4,11 @@
   become: yes #root-rechte zum installieren 
   tasks:
     - name: System updaten
-      yum:
+      apt:
         update_cache: yes
     
     - name: Docker installieren
-      yum:
+      apt:
         name: docker
         state: present
 

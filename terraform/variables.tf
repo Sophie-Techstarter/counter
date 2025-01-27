@@ -1,6 +1,6 @@
 variable "ami" {
     description = "AMI ID"
-    default = "ami-0e54671bdf3c8ed8d"
+    default = "ami-07eef52105e8a2059"
 }
 
 variable "instance_type" {

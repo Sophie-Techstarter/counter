@@ -55,11 +55,11 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/windows-pair.pem
           cat ~/.ssh/windows-pair.pem
-          chmod 400 ~/.ssh/windows-pair.pem
+          chmod 600 ~/.ssh/windows-pair.pem
 
       - name: Ansible Playbook ausführen
         working-directory: ./ansible
-        run: ansible-playbook -i inventory.ini mein-playbook.yml --ssh-common-args='-o StrictHostKeyChecking=no'
+        run: ansible-playbook -i inventory.ini mein-playbook.yml --ssh-common-args='-o StrictHostKeyChecking=no' -v
 
   terraform_destroy:
     name: "Terraform_destroy"

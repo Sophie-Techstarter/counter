@@ -49,13 +49,26 @@ jobs:
             echo "Terraform outputs are empty or invalid."
           fi
 
-
-      - name: Copy SSH Key
+      - name: Setup SSH
+        shell: bash
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/windows-pair.pem
-          cat ~/.ssh/windows-pair.pem
-          chmod u+rw,go-rwx ~/.ssh/windows-pair.pem
+          # Start ssh-agent und setze die Umgebung
+          eval $(ssh-agent -s)
+
+          # Erstelle das .ssh Verzeichnis
+          mkdir -p /home/runner/.ssh/
+
+          # Speichere den SSH-Schlüssel aus GitHub Secrets in die Datei
+          echo "${{ secrets.AWS_SSH_KEY }}" > /home/runner/.ssh/windows-pair.pem
+
+          # Setze die richtigen Berechtigungen für den SSH-Schlüssel
+          chmod 600 /home/runner/.ssh/windows-pair.pem
+
+          # Füge den SSH-Schlüssel zum Agenten hinzu
+          ssh-add /home/runner/.ssh/windows-pair.pem
+
+          # Verhindere die Host Key Verifikation
+          echo -e "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile=/dev/null" > /home/runner/.ssh/config
 
       - name: Ansible Playbook ausführen
         working-directory: ./ansible
@@ -88,11 +101,10 @@ jobs:
         working-directory: ./terraform
         run: terraform refresh
 
-
       - name: Terraform Plan (Destroy)
         working-directory: ./terraform
         run: terraform plan -destroy
-  
+
       - name: Terraform Destroy
         working-directory: ./terraform
         run: terraform destroy -auto-approve

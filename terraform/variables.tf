@@ -17,8 +17,3 @@ variable "region" {
     description = "Region"
     default = "eu-central-1"
 }
-
-variable "profile" {
-    description = "my profile"
-    default = "teacher-396913703234"
-}

@@ -88,6 +88,13 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform plan -no-color
 
+        # Set AWS credentials for Terraform
+      - name: Set AWS Credentials
+        run: |
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
+            echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
+
       # Kommentar für Pull Requests erstellen (nur für Pull Requests)
       - name: Post Plan Comment
         if: github.event_name == 'pull_request'

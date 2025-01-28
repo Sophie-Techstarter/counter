@@ -58,8 +58,8 @@ jobs:
       - name: SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/windows-pair.pem
+          chmod 600 ~/.ssh/windows-pair.pem
 
 
       - name: Ansible Playbook ausführen

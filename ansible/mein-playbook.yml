@@ -25,11 +25,18 @@
         groups: docker
         append: true
 
-    - name: Start React App Container
-      docker_container:
-        name: meineReactApp
-        image: sophieischenkots/counter
-        ports:
-          - "80:80"
+    - name: Pull Frontend Docker image from Docker Hub
+      community.docker.docker_image:
+        name: "sophieischenkots/counter:latest"
+        tag: "latest"
+        source: pull
+
+    - name: Run Frontend Docker container
+      community.docker.docker_container:
+        name: react-counter
+        image: "sophieischenkots/counter:latest"
         state: started
+        restart_policy: always
+        published_ports:
+          - "80:80"
     

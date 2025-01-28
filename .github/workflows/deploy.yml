@@ -47,7 +47,7 @@ jobs:
       - name: Generiere Ansible Inventory
         working-directory: ./terraform
         run: |
-          echo "[webserver]" > ../ansible/inventory.ini
+          echo "[webserver]" >> ../ansible/inventory.ini
           terraform output -json >> meineOutputs.json
           if [ -s meineOutputs.json ]; then
           jq -r ".public_ips.value[]" meineOutputs.json >> ../ansible/inventory.ini

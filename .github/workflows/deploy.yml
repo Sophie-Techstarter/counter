@@ -35,6 +35,12 @@ jobs:
         working-directory: ./terraform
         run: terraform apply -auto-approve
 
+      - name: System aktualisieren
+        run: sudo apt-get update
+
+      - name: Pakete installieren
+        run: sudo apt-get upgrade
+
       - name: Ansible installieren
         run: sudo apt-get install -y ansible
 

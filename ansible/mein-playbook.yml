@@ -29,7 +29,7 @@
 
     - name: Pull Frontend Docker image from Docker Hub
       community.docker.docker_image:
-        name: "sophieischenkots"
+        name: "sophieischenkots/counter"
         tag: "{{ docker_image_tag }}"
         source: pull
 

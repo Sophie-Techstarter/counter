@@ -46,6 +46,7 @@ jobs:
 
   Terraform-Apply:
     runs-on: ubuntu-latest 
+    needs: Docker
     if: github.event_name == 'push'  
 
     steps:
